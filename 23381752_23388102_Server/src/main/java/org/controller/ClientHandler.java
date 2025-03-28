@@ -22,7 +22,7 @@ public class ClientHandler implements Runnable {
 
             String request;
             while ((request = in.readLine()) != null) {
-                System.out.println("Received Message: " + request);
+                ServerGUI.log("Received Message: " + request);
 
                 // Process request
                 String response;
@@ -30,20 +30,21 @@ public class ClientHandler implements Runnable {
 
                 out.println(response);
                 if ("TERMINATE".equals(response)) {
-                    System.out.println("Closing client connection...");
+                    ServerGUI.log("Closing client connection...");
                     break;
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            ServerGUI.log("IOException: " + e.getMessage());
         } catch (IncorrectActionException e) {
+            ServerGUI.log("IncorrectActionException: " + e.getMessage());
             throw new RuntimeException(e);
         } finally {
             try {
                 socket.close();
-                System.out.println("Client socket closed.");
+                ServerGUI.log("Client socket closed.");
             } catch (IOException e) {
-                System.err.println("Error closing socket: " + e.getMessage());
+                ServerGUI.log("Error closing socket: " + e.getMessage());
             }
         }
     }
