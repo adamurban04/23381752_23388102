@@ -10,7 +10,7 @@ public class RequestProcessor {
         String[] parts = request.split("\\$");    // split parts with $ separator
 
         if (parts.length < 2) {
-            return "Error: Invalid request format.";
+            return "ERROR: Invalid request format.";
         }
         String action = parts[0].trim();
         String details = parts[1].trim();
@@ -33,7 +33,7 @@ public class RequestProcessor {
                     throw new IncorrectActionException("Action '" + action + "' is not implemented.");
             }
         } catch (IncorrectActionException e) {
-            return "Server Error: " + e.getMessage();
+            return e.getMessage();
         } catch (IOException e) {
             return "File Error: " + e.getMessage();
         }
