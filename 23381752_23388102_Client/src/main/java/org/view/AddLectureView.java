@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class AddLectureView {
     private final Stage stage;
@@ -86,6 +88,15 @@ public class AddLectureView {
             String time = timeField.getText().trim();
             String room = roomField.getText().trim();
 
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            LocalTime parsedTime;
+            try {
+                parsedTime = LocalTime.parse(time, formatter);
+            } catch (DateTimeParseException e) {
+                return "Invalid time format. Use HH:mm (e.g., 09:00) 24 hour format";
+            }
+
+
             if (module.isEmpty() || date == null || time.isEmpty() || room.isEmpty()) {
                 return "Please fill all fields.";
             }
@@ -100,9 +111,6 @@ public class AddLectureView {
             }
 
             String lastFourChars = module.substring(2, 6);
-            if (lastFourChars.length() != 4) {
-                throw new IncorrectActionException("Last four chars of module must be 4 digits.");
-            }
 
             for (int i = 0; i < lastFourChars.length(); i++) {
                 char currentChar = lastFourChars.charAt(i);
@@ -111,10 +119,13 @@ public class AddLectureView {
                 }
             }
 
-            // Ensure the time is at a full hour
-            LocalTime parsedTime = LocalTime.parse(time);
             if (parsedTime.getMinute() != 0) {
                 throw new IncorrectActionException("Invalid time format; must be full hour (e.g 12:00)");
+            }
+
+
+            if (parsedTime.isBefore(LocalTime.of(9, 0)) || parsedTime.isAfter(LocalTime.of(18, 0))) {
+                throw new IncorrectActionException("Time must be between 09:00 and 18:00.");
             }
 
             String request = "Add$" + module + "," + date + "," + time + "," + room;
