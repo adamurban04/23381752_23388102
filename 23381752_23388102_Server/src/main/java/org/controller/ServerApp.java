@@ -1,116 +1,48 @@
 package org.controller;
 
-import org.exceptions.IncorrectActionException;
 import org.model.Timetable;
 import java.io.*;
 import java.net.*;
-import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+// Server side for TCP Connection between clients and the server
 
 public class ServerApp {
-    private static ServerSocket serverSocket;
-    private static volatile boolean isRunning = false;
-    private static final Map<Socket, String> connections = new HashMap<>();
-    private static int connectionCount = 0;
+    private static final int PORT = 1234;
+    private static final int MAX_CLIENTS = 10;
+    private static Timetable timetable = new Timetable();
+    private static ExecutorService executorService;
 
-    public static void startServer() {
-        if (isRunning) return;
-        isRunning = true;
-        connectionCount = 0; // Reset counter on restart
+    public void startServer() {
+        executorService = Executors.newFixedThreadPool(MAX_CLIENTS);
 
-        new Thread(() -> {
-            try (ServerSocket ss = new ServerSocket(1234)) {
-                serverSocket = ss;
-                ServerGUI.log("Server started on port 1234");
-                ServerGUI.updateServerStatus(true);
+        try (ServerSocket serverSocket = new ServerSocket(PORT)){
+            ServerGUI.log("Server is running on port: " + PORT);
 
-                while (isRunning) {
-                    try {
-                        Socket clientSocket = serverSocket.accept();
-                        String ip = clientSocket.getInetAddress().getHostAddress();
-
-                        synchronized (connections) {
-                            connectionCount++;
-                            String connId = ip + "-" + connectionCount;
-                            connections.put(clientSocket, connId);
-                            ServerGUI.log("[" + connId + "] Connected");
-                        }
-
-                        new Thread(() -> handleClient(clientSocket)).start();
-                    } catch (SocketException e) {
-                        if (isRunning) {
-                            ServerGUI.log("Server socket error: " + e.getMessage());
-                        }
-                    } catch (IOException e) {
-                        ServerGUI.log("Server error: " + e.getMessage());
-                    }
-                }
-            } catch (IOException e) {
-                ServerGUI.log("Failed to start server: " + e.getMessage());
-            } finally {
-                ServerGUI.updateServerStatus(false);
+            while (true) {
+                Socket clientSocket = serverSocket.accept(); // accept client connection
+                ServerGUI.log("Client connected: " + clientSocket.getInetAddress());
+                executorService.execute(new ClientHandler(clientSocket, timetable));
             }
-        }).start();
-    }
 
-    private static void handleClient(Socket socket) {
-        String connId;
-        synchronized (connections) {
-            connId = connections.get(socket);
-        }
-
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-             PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
-
-            String request;
-            while (isRunning && (request = in.readLine()) != null) {
-                String response = RequestProcessor.processRequest(request, new Timetable());
-                out.println(response);
-            }
-        } catch (IOException | IncorrectActionException e) {
-            if (isRunning) {
-                ServerGUI.log("[" + connId + "] Error: " + e.getMessage());
-            }
-        } finally {
-            try {
-                socket.close();
-                if (isRunning) {
-                    ServerGUI.log("[" + connId + "] Disconnected");
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            synchronized (connections) {
-                connections.remove(socket);
-            }
+        } catch (IOException e) {
+            ServerGUI.log("Server error: " + e.getMessage());
         }
     }
 
     public static void stopServer() {
-        if (!isRunning) return;
-        isRunning = false;
-
-        synchronized (connections) {
-            connections.forEach((socket, connId) -> {
-                try {
-                    try {
-                        socket.close();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                } catch (RuntimeException e) {
-                    throw new RuntimeException(e);
+        if (executorService != null) {
+            executorService.shutdown();
+            try {
+                if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
+                    executorService.shutdownNow();
                 }
-            });
-            connections.clear();
-        }
-
-        try {
-            if (serverSocket != null && !serverSocket.isClosed()) {
-                serverSocket.close();
-                ServerGUI.log("Server stopped");
+            } catch (InterruptedException e) {
+                executorService.shutdownNow();
             }
-        } catch (IOException e) {
-            ServerGUI.log("Server close error: " + e.getMessage());
+            ServerGUI.log("Server stopped");
         }
     }
 }
