@@ -8,7 +8,6 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.controller.ClientConnection;
 import org.exceptions.IncorrectActionException;
-
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
