@@ -1,5 +1,6 @@
 package org.model;
 
+import org.controller.ServerGUI;
 import org.exceptions.IncorrectActionException;
 
 import java.io.BufferedReader;
@@ -73,6 +74,7 @@ public class Timetable {
                 Lecture lecture = iterator.next();
                 if (lecture.getModule().equalsIgnoreCase(module) && lecture.getDate().equals(date) && lecture.getTime().equals(time)) {
                     iterator.remove();
+                    ServerGUI.log("Lecture "+ module +" removed");
                     return "Lecture removed.";
                 }
             }
@@ -145,6 +147,13 @@ public class Timetable {
             }
         }
         return "Timetable exported successfully to " + filePath;
+    }
+
+    public String clearTimetable() {
+        for (ArrayList<Lecture> dayLectures : weeklyTimetable) {
+            dayLectures.clear();
+        }
+        return "Timetable cleared!";
     }
 
     public synchronized String importFromCSV(String filePath) throws IOException, IncorrectActionException {
@@ -273,6 +282,7 @@ public class Timetable {
             this.endDay = endDay;
         }
 
+
         @Override
         protected void compute() {
             if (endDay - startDay <= SEQUENTIAL_THRESHOLD) {
@@ -283,10 +293,6 @@ public class Timetable {
                 EarlyLecturesForkJoin right = new EarlyLecturesForkJoin(timetable, mid, endDay);
                 invokeAll(left, right);
             }
-        }
-
-        public void startRescheduling(Timetable timetable) {
-            ForkJoinPool.commonPool().invoke(new EarlyLecturesForkJoin(timetable, 0, 5)); // 0=Monday, 4=Friday
         }
     }
 }

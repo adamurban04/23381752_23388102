@@ -43,6 +43,7 @@ public class DisplayTimetableView {
         Button exportButton = createButton("Export CSV", "#2C7A7B");
         Button importButton = createButton("Import CSV", "#2C7A7B");
         Button sendEarlyLec = createButton("Send Early Lectures Request", "#FFA500");
+        Button clearTimetable = createButton("Clear", "#9a0200");
 
 
         refreshButton.setOnAction(e -> updateTimetable());
@@ -67,6 +68,10 @@ public class DisplayTimetableView {
 
         sendEarlyLec.setOnAction(e -> {
         earlyLecturesRequest();
+        });
+
+        clearTimetable.setOnAction(e -> {
+            clearTimetableRequest();
         });
 
         importButton.setOnAction(e -> {
@@ -98,7 +103,7 @@ public class DisplayTimetableView {
 
 
         // group Export and Import in an HBox
-        HBox exportImportBox = new HBox(10, exportButton, importButton);
+        HBox exportImportBox = new HBox(10, exportButton, importButton, clearTimetable);
         exportImportBox.setAlignment(Pos.CENTER);
 
         // main layout
@@ -112,6 +117,20 @@ public class DisplayTimetableView {
         stage.setTitle("Display Timetable");
 
         updateTimetable(); // load timetable on start
+    }
+
+    private void clearTimetableRequest() {
+        try {
+            String response = ClientConnection.getInstance().sendRequest("Clear$Table");
+            System.out.println("Server response: " + response);
+            if ("Timetable cleared!".equals(response)) {
+                updateTimetable();
+            } else {
+                System.out.println("Unexpected server response: " + response);
+            }
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+        }
     }
 
     public void earlyLecturesRequest() {
@@ -268,6 +287,4 @@ public class DisplayTimetableView {
 
         return button;
     }
-
-
 }

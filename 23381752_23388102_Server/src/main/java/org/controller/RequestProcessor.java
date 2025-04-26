@@ -23,6 +23,7 @@ public class RequestProcessor {
                     return "TERMINATE";
                 case "Add":
                     return timetable.addLecture(details);
+
                 case "Remove":
                     return timetable.removeLecture(details);
                 case "Display":
@@ -34,6 +35,8 @@ public class RequestProcessor {
                 case "EarlyLectures":
                     offloadEarlyLectures(timetable);  // Call the refactored method
                     return "TimetableUpdated";
+                case "Clear":
+                    return timetable.clearTimetable();
                 default:
                     throw new IncorrectActionException("Action '" + action + "' is not implemented.");
             }

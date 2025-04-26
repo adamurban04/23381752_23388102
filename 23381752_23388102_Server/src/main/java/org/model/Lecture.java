@@ -1,5 +1,7 @@
 package org.model;
 
+import org.controller.ServerGUI;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -15,9 +17,7 @@ public class Lecture {
     public Lecture(String module, LocalDate date, LocalTime time, String room) {
         if (!modules.contains(module)) {  // If the module is new
             modules.add(module);  // Add the module to the list
-            System.out.println(module + " added!");
-            System.out.println("Current module count: " + modules.size());  // Debugging line
-        }
+            ServerGUI.log(module + " added!");}
         this.module = module;
         this.date = date;
         this.time = time;
