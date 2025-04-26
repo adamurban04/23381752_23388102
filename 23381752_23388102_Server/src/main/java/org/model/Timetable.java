@@ -10,6 +10,13 @@ import java.util.*;
 import java.util.Iterator;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveAction;
+import java.util.concurrent.ForkJoinPool;
+
+
+import javafx.concurrent.Task;
+
 
 
 public class Timetable {
@@ -26,7 +33,8 @@ public class Timetable {
     // Method to add a lecture to a specific day
     public synchronized String addLecture(String details) throws IncorrectActionException {
         String[] parts = details.split(",");
-        if (parts.length < 4) throw new IncorrectActionException("Invalid lecture format. Expected: module,date,time,room");
+        if (parts.length < 4)
+            throw new IncorrectActionException("Invalid lecture format. Expected: module,date,time,room");
 
         try {
             String module = parts[0].trim();
@@ -84,8 +92,7 @@ public class Timetable {
             schedule.append(weekdays[i]);
 
             if (weeklyTimetable.get(i).isEmpty()) {
-            }
-            else {
+            } else {
                 for (Lecture lecture : weeklyTimetable.get(i)) {
                     schedule.append(lecture.toString()); // format the lecture properly
                 }
@@ -97,7 +104,6 @@ public class Timetable {
 
         return schedule.toString();
     }
-
 
 
     private boolean isTimeSlotOccupied(LocalDate date, LocalTime time, String room) {
@@ -193,23 +199,7 @@ public class Timetable {
 
 
     public void rescheduleLecturesToEarlierTimes() {
-        List<Thread> threads = new ArrayList<>();
-
-        for (int day = 0; day < 5; day++) {
-            final int currentDay = day;
-            Thread rescheduler = new Thread(() -> rescheduleDay(currentDay));
-            threads.add(rescheduler);
-            rescheduler.start();
-        }
-
-        for (Thread t : threads) {
-            try {
-                t.join(); // Wait for all threads to finish
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-
+        ForkJoinPool.commonPool().invoke(new EarlyLecturesForkJoin(this, 0, 5));
     }
 
     public synchronized List<Lecture> getLecturesForDay(int day) {
@@ -271,10 +261,32 @@ public class Timetable {
         }
     }
 
+    public static class EarlyLecturesForkJoin extends RecursiveAction {
+        private static final int SEQUENTIAL_THRESHOLD = 1; // handle one day at a time
+        private final Timetable timetable;
+        private final int startDay;
+        private final int endDay;
 
+        public EarlyLecturesForkJoin(Timetable timetable, int startDay, int endDay) {
+            this.timetable = timetable;
+            this.startDay = startDay;
+            this.endDay = endDay;
+        }
 
+        @Override
+        protected void compute() {
+            if (endDay - startDay <= SEQUENTIAL_THRESHOLD) {
+                timetable.rescheduleDay(startDay);
+            } else {
+                int mid = (startDay + endDay) / 2;
+                EarlyLecturesForkJoin left = new EarlyLecturesForkJoin(timetable, startDay, mid);
+                EarlyLecturesForkJoin right = new EarlyLecturesForkJoin(timetable, mid, endDay);
+                invokeAll(left, right);
+            }
+        }
 
-
-
-
+        public void startRescheduling(Timetable timetable) {
+            ForkJoinPool.commonPool().invoke(new EarlyLecturesForkJoin(timetable, 0, 5)); // 0=Monday, 4=Friday
+        }
+    }
 }

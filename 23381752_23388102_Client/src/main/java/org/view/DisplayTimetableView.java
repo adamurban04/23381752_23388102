@@ -126,6 +126,8 @@ public class DisplayTimetableView {
         } catch (Exception e) {
             System.out.println("Exception: " + e.getMessage());
         }
+        updateTimetable();
+
     }
 
     public void updateTimetable() {
