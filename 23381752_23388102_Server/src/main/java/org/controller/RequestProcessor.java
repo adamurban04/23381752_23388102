@@ -5,6 +5,8 @@ import org.model.Timetable;
 
 import java.io.IOException;
 
+import javafx.concurrent.Task;
+
 public class RequestProcessor {
     public static String processRequest(String request, Timetable timetable) throws IncorrectActionException {
         String[] parts = request.split("\\$");    // split parts with $ separator
@@ -30,7 +32,7 @@ public class RequestProcessor {
                 case "ImportCSV":
                     return timetable.importFromCSV(details);
                 case "EarlyLectures":
-                    timetable.rescheduleLecturesToEarlierTimes();
+                    offloadEarlyLectures(timetable);  // Call the refactored method
                     return "TimetableUpdated";
                 default:
                     throw new IncorrectActionException("Action '" + action + "' is not implemented.");
@@ -41,4 +43,17 @@ public class RequestProcessor {
             return "File Error: " + e.getMessage();
         }
     }
+    private static void offloadEarlyLectures(Timetable timetable) {
+        Task<Void> earlyLecturesTask = new Task<>() {
+            @Override
+            protected Void call() {
+                timetable.rescheduleLecturesToEarlierTimes();
+                return null;
+            }
+        };
+        earlyLecturesTask.setOnSucceeded(event -> System.out.println("Early lectures rescheduling completed."));
+        earlyLecturesTask.setOnFailed(event -> System.out.println("Early lectures rescheduling failed: " + earlyLecturesTask.getException()));
+        new Thread(earlyLecturesTask).start();
+    }
+
 }
