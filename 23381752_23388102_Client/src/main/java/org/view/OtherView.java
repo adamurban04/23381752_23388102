@@ -24,7 +24,7 @@ public class OtherView {
 
     private void showOtherScreen() {
         Label titleLabel = new Label("Test Invalid Action");
-        titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;");
+        titleLabel.getStyleClass().add("title");
 
         Label instructionLabel = new Label("Click the button to send an invalid request:");
         instructionLabel.setStyle("-fx-font-size: 14px;");
@@ -66,9 +66,9 @@ public class OtherView {
         VBox layout = new VBox(15, titleLabel, instructionLabel, sendButton, quitButton, backButton, responseLabel);
         layout.setPadding(new Insets(20));
         layout.setAlignment(Pos.CENTER);
-        layout.setStyle("-fx-background-color: #F0F4F8; -fx-border-radius: 10px; -fx-background-radius: 10px;");
 
         Scene scene = new Scene(layout, 700, 500);
+        ThemeManager.initialize(scene);
         stage.setScene(scene);
         stage.setTitle("Test Incorrect Action");
 

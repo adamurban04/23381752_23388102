@@ -32,7 +32,7 @@ public class RemoveLectureView {
 
     private void showRemoveLectureScreen() {
         Label titleLabel = new Label("Remove a Lecture");
-        titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;");
+        titleLabel.getStyleClass().add("title");
 
         moduleField = createTextField("e.g., CS1001");
         datePicker = new DatePicker();
@@ -76,9 +76,9 @@ public class RemoveLectureView {
         VBox layout = new VBox(20, titleLabel, formGrid, responseLabel);
         layout.setAlignment(Pos.CENTER);
         layout.setPadding(new Insets(20));
-        layout.setStyle("-fx-background-color: #F0F4F8; -fx-border-radius: 10px; -fx-background-radius: 10px;");
 
         Scene scene = new Scene(layout, 700, 500);
+        ThemeManager.initialize(scene);
         stage.setScene(scene);
         stage.setTitle("Remove Lecture");
     }

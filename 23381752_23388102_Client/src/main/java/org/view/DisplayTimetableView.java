@@ -30,7 +30,7 @@ public class DisplayTimetableView {
 
     private void showDisplayTimetableScreen() {
         Label titleLabel = new Label("Weekly Lecture Timetable");
-        titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;");
+        titleLabel.getStyleClass().add("title");
 
         timetableGrid = new GridPane();
         timetableGrid.setPadding(new Insets(10));
@@ -105,8 +105,9 @@ public class DisplayTimetableView {
         VBox layout = new VBox(10, titleLabel, timetableGrid, infoLabel, exportImportBox, refreshBackBox);
         layout.setPadding(new Insets(20));
         layout.setAlignment(Pos.CENTER);
-        layout.setStyle("-fx-background-color: #F0F4F8; -fx-border-radius: 10px; -fx-background-radius: 10px;");
+
         Scene scene = new Scene(layout, 700, 500);
+        ThemeManager.initialize(scene);
         stage.setScene(scene);
         stage.setTitle("Display Timetable");
 
