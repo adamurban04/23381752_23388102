@@ -42,6 +42,8 @@ public class DisplayTimetableView {
         Button backButton = createButton("Back", "#e27e3d");
         Button exportButton = createButton("Export CSV", "#2C7A7B");
         Button importButton = createButton("Import CSV", "#2C7A7B");
+        Button sendEarlyLec = createButton("Send Early Lectures Request", "#FFA500");
+
 
         refreshButton.setOnAction(e -> updateTimetable());
         backButton.setOnAction(e -> onBack.run());
@@ -61,6 +63,10 @@ public class DisplayTimetableView {
                     System.out.println(("Error exporting timetable: " + ex.getMessage()));
                 }
             }
+        });
+
+        sendEarlyLec.setOnAction(e -> {
+        earlyLecturesRequest();
         });
 
         importButton.setOnAction(e -> {
@@ -86,8 +92,10 @@ public class DisplayTimetableView {
         infoLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #808080;");
 
         // group Refresh and Back in an HBox
-        HBox refreshBackBox = new HBox(10, backButton, refreshButton);
+        HBox refreshBackBox = new HBox(10, backButton, refreshButton, sendEarlyLec);
         refreshBackBox.setAlignment(Pos.CENTER);
+
+
 
         // group Export and Import in an HBox
         HBox exportImportBox = new HBox(10, exportButton, importButton);
@@ -105,7 +113,22 @@ public class DisplayTimetableView {
         updateTimetable(); // load timetable on start
     }
 
-    private void updateTimetable() {
+    public void earlyLecturesRequest() {
+        try {
+            String response = ClientConnection.getInstance().sendRequest("EarlyLectures$req");
+            System.out.println("Server response: " + response);
+
+            if ("TimetableUpdated".equals(response)) {
+                updateTimetable();
+            } else {
+                System.out.println("Unexpected server response: " + response);
+            }
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+        }
+    }
+
+    public void updateTimetable() {
         try {
             String response = ClientConnection.getInstance().sendRequest("Display$details");
 
