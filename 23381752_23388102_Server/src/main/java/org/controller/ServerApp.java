@@ -17,7 +17,6 @@ public class ServerApp {
 
     public void startServer() {
         executorService = Executors.newFixedThreadPool(MAX_CLIENTS);
-
         try (ServerSocket serverSocket = new ServerSocket(PORT)){
             ServerGUI.log("Server is running on port: " + PORT);
 
