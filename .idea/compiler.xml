@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="Scheduler" />
         <module name="Scheduler (1)" />
+        <module name="Scheduler (2)" />
       </profile>
     </annotationProcessing>
   </component>

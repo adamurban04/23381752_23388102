@@ -170,6 +170,109 @@ public class Timetable {
         return "Timetable imported successfully from " + filePath;
     }
 
+    public synchronized void addLectureLite(LocalDate date, LocalTime time, String room, String module) {
+        weeklyTimetable.get(date.getDayOfWeek().getValue() - 1)
+                .add(new Lecture(module, date, time, room));
+    }
+
+    public synchronized void removeLectureLite(LocalDate date, LocalTime time, String room, String module) {
+        int dayIndex = date.getDayOfWeek().getValue() - 1;
+
+        Iterator<Lecture> iterator = weeklyTimetable.get(dayIndex).iterator();
+        while (iterator.hasNext()) {
+            Lecture lecture = iterator.next();
+            if (lecture.getModule().equalsIgnoreCase(module) &&
+                    lecture.getDate().equals(date) &&
+                    lecture.getTime().equals(time) &&
+                    lecture.getRoom().equalsIgnoreCase(room)) {
+                iterator.remove();
+                return;
+            }
+        }
+    }
+
+
+    public void rescheduleLecturesToEarlierTimes() {
+        List<Thread> threads = new ArrayList<>();
+
+        for (int day = 0; day < 5; day++) {
+            final int currentDay = day;
+            Thread rescheduler = new Thread(() -> rescheduleDay(currentDay));
+            threads.add(rescheduler);
+            rescheduler.start();
+        }
+
+        for (Thread t : threads) {
+            try {
+                t.join(); // Wait for all threads to finish
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+    }
+
+    public synchronized List<Lecture> getLecturesForDay(int day) {
+        return new ArrayList<>(weeklyTimetable.get(day));
+    }
+
+
+    public synchronized boolean hasLectureAt(int day, String room, LocalTime time) {
+        for (Lecture lecture : weeklyTimetable.get(day)) {
+            if (lecture.getTime().equals(time) && lecture.getRoom().equalsIgnoreCase(room)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void rescheduleDay(int day) {
+        List<Lecture> dayLectures;
+
+        synchronized (this) {
+            dayLectures = new ArrayList<>(getLecturesForDay(day));
+        }
+
+        // Sort lectures by original time
+        dayLectures.sort(Comparator.comparing(Lecture::getTime));
+
+        for (Lecture lecture : dayLectures) {
+            List<LocalTime> preferredTimes = new ArrayList<>();
+
+            // Build preferred times dynamically from 9:00 up to just before the lecture's current time
+            int lectureHour = lecture.getTime().getHour();
+            for (int hour = 9; hour < lectureHour; hour++) {
+                preferredTimes.add(LocalTime.of(hour, 0));
+            }
+
+            synchronized (this) {
+                for (LocalTime newTime : preferredTimes) {
+                    if (!hasLectureAt(day, lecture.getRoom(), newTime)) {
+                        // Remove lecture at old time
+                        removeLectureLite(
+                                lecture.getDate(),
+                                lecture.getTime(),
+                                lecture.getRoom(),
+                                lecture.getModule()
+                        );
+
+                        // Add lecture at new earlier time
+                        addLectureLite(
+                                lecture.getDate(),
+                                newTime,
+                                lecture.getRoom(),
+                                lecture.getModule()
+                        );
+
+                        break; // Once moved, break to next lecture
+                    }
+                }
+            }
+        }
+    }
+
+
+
 
 
 

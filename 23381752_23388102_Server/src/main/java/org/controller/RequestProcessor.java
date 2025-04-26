@@ -29,6 +29,9 @@ public class RequestProcessor {
                     return timetable.exportToCSV(details);
                 case "ImportCSV":
                     return timetable.importFromCSV(details);
+                case "EarlyLectures":
+                    timetable.rescheduleLecturesToEarlierTimes();
+                    return "TimetableUpdated";
                 default:
                     throw new IncorrectActionException("Action '" + action + "' is not implemented.");
             }
