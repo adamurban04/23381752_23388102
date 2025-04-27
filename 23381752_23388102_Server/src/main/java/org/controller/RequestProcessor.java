@@ -23,7 +23,6 @@ public class RequestProcessor {
                     return "TERMINATE";
                 case "Add":
                     return timetable.addLecture(details);
-
                 case "Remove":
                     return timetable.removeLecture(details);
                 case "Display":
@@ -58,5 +57,4 @@ public class RequestProcessor {
         earlyLecturesTask.setOnFailed(event -> System.out.println("Early lectures rescheduling failed: " + earlyLecturesTask.getException()));
         new Thread(earlyLecturesTask).start();
     }
-
 }

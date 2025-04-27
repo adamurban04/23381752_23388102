@@ -157,6 +157,7 @@ public class Timetable {
                 dayLectures.clear();
             }
         }
+        ServerGUI.log("Timetable cleared!");
         return "Timetable cleared!";
 
     }
@@ -243,13 +244,13 @@ public class Timetable {
             dayLectures = new ArrayList<>(getLecturesForDay(day));
         }
 
-        // Sort lectures by original time
+        // Sort lectures by original time to ensure they are moved sequentially
         dayLectures.sort(Comparator.comparing(Lecture::getTime));
 
         for (Lecture lecture : dayLectures) {
             List<LocalTime> preferredTimes = new ArrayList<>();
 
-            // Build preferred times dynamically from 9:00 up to just before the lecture's current time
+            // Build preferred times from 9:00 up to just before the lecture's current time
             int lectureHour = lecture.getTime().getHour();
             for (int hour = 9; hour < lectureHour; hour++) {
                 preferredTimes.add(LocalTime.of(hour, 0));
