@@ -73,7 +73,7 @@ public class OtherView {
         stage.setScene(scene);
 
     }
-
+//
     private String sendInvalidRequest() throws IncorrectActionException {
         try {
             return ClientConnection.getInstance().sendRequest("InvalidCommand$test");
