@@ -32,7 +32,7 @@ public class Timetable {
     }
 
     // Method to add a lecture to a specific day
-    public synchronized String addLecture(String details) throws IncorrectActionException {
+    public String addLecture(String details) throws IncorrectActionException {
         String[] parts = details.split(",");
         if (parts.length < 4)
             throw new IncorrectActionException("Invalid lecture format. Expected: module,date,time,room");
@@ -42,12 +42,13 @@ public class Timetable {
             LocalDate date = LocalDate.parse(parts[1].trim());
             LocalTime time = LocalTime.parse(parts[2].trim());
             String room = parts[3].trim();
-
-            if (isTimeSlotOccupied(date, time, room)) {
-                throw new IncorrectActionException("ERROR: Time slot occupied for " + room + " at " + time);
-            }
-            if (isTimeSlotFree(date, time)) {
-                throw new IncorrectActionException("ERROR: Time slot occupied by another lecture");
+            synchronized (weeklyTimetable) {
+                if (isTimeSlotOccupied(date, time, room)) {
+                    throw new IncorrectActionException("ERROR: Time slot occupied for " + room + " at " + time);
+                }
+                if (isTimeSlotFree(date, time)) {
+                    throw new IncorrectActionException("ERROR: Time slot occupied by another lecture");
+                }
             }
 
             weeklyTimetable.get(date.getDayOfWeek().getValue() - 1).add(new Lecture(module, date, time, room)); //stores in timetable
@@ -57,7 +58,7 @@ public class Timetable {
         }
     }
 
-    public synchronized String removeLecture(String details) throws IncorrectActionException {
+    public String removeLecture(String details) throws IncorrectActionException {
         String[] parts = details.split(",");
         if (parts.length < 2) throw new IncorrectActionException("Invalid lecture format. Expected: module,date,time");
 
@@ -69,41 +70,44 @@ public class Timetable {
 
             int dayIndex = date.getDayOfWeek().getValue() - 1;
 
-            Iterator<Lecture> iterator = weeklyTimetable.get(dayIndex).iterator();
-            while (iterator.hasNext()) {
-                Lecture lecture = iterator.next();
-                if (lecture.getModule().equalsIgnoreCase(module) && lecture.getDate().equals(date) && lecture.getTime().equals(time)) {
-                    iterator.remove();
-                    ServerGUI.log("Lecture for "+ module +" removed");
-                    return "Lecture removed.";
+            synchronized (weeklyTimetable) {
+                Iterator<Lecture> iterator = weeklyTimetable.get(dayIndex).iterator();
+                while (iterator.hasNext()) {
+                    Lecture lecture = iterator.next();
+                    if (lecture.getModule().equalsIgnoreCase(module) && lecture.getDate().equals(date) && lecture.getTime().equals(time)) {
+                        iterator.remove();
+                        ServerGUI.log("Lecture for " + module + " removed");
+                        return "Lecture removed.";
+                    }
                 }
             }
-        return "ERROR: Lecture not found.";
+            return "ERROR: Lecture not found.";
         } catch (Exception e) {
             throw new IncorrectActionException("Invalid date format.");
         }
     }
 
-    public synchronized String getSchedule() {
+    public String getSchedule() {
         StringBuilder schedule = new StringBuilder("Scheduled Lectures|");
         String[] weekdays = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
 
-        //each weekday- display the lectures for that day
-        for (int i = 0; i < 5; i++) {
-            // check if the day has lectures scheduled
-            schedule.append(weekdays[i]);
+        synchronized (weeklyTimetable) {
+            //each weekday- display the lectures for that day
+            for (int i = 0; i < 5; i++) {
+                // check if the day has lectures scheduled
+                schedule.append(weekdays[i]);
 
-            if (weeklyTimetable.get(i).isEmpty()) {
-            } else {
-                for (Lecture lecture : weeklyTimetable.get(i)) {
-                    schedule.append(lecture.toString()); // format the lecture properly
+                if (weeklyTimetable.get(i).isEmpty()) {
+                } else {
+                    for (Lecture lecture : weeklyTimetable.get(i)) {
+                        schedule.append(lecture.toString()); // format the lecture properly
+                    }
                 }
+                schedule.append("|");
             }
-            schedule.append("|");
         }
 
         System.out.println(schedule);
-
         return schedule.toString();
     }
 
@@ -130,19 +134,21 @@ public class Timetable {
     }
 
     public synchronized String exportToCSV(String filePath) throws IOException {
-        try (FileWriter writer = new FileWriter(filePath)) {
-            //header
-            writer.write("Module,Date,Time,Room\n");
+        synchronized (weeklyTimetable) {
+            try (FileWriter writer = new FileWriter(filePath)) {
+                //header
+                writer.write("Module,Date,Time,Room\n");
 
-            //timetable data
-            for (ArrayList<Lecture> dayLectures : weeklyTimetable) {
-                for (Lecture lecture : dayLectures) {
-                    writer.write(
-                            lecture.getModule() + "," +
-                                    lecture.getDate() + "," +
-                                    lecture.getTime() + "," +
-                                    lecture.getRoom() + "\n"
-                    );
+                //timetable data
+                for (ArrayList<Lecture> dayLectures : weeklyTimetable) {
+                    for (Lecture lecture : dayLectures) {
+                        writer.write(
+                                lecture.getModule() + "," +
+                                        lecture.getDate() + "," +
+                                        lecture.getTime() + "," +
+                                        lecture.getRoom() + "\n"
+                        );
+                    }
                 }
             }
         }
@@ -150,13 +156,16 @@ public class Timetable {
     }
 
     public String clearTimetable() {
-        for (ArrayList<Lecture> dayLectures : weeklyTimetable) {
-            dayLectures.clear();
+        synchronized (weeklyTimetable) {
+            for (ArrayList<Lecture> dayLectures : weeklyTimetable) {
+                dayLectures.clear();
+            }
         }
         return "Timetable cleared!";
+
     }
 
-    public synchronized String importFromCSV(String filePath) throws IOException, IncorrectActionException {
+    public String importFromCSV(String filePath) throws IOException, IncorrectActionException {
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             boolean isHeader = true;
@@ -178,30 +187,35 @@ public class Timetable {
                 LocalTime time = LocalTime.parse(parts[2].trim());
                 String room = parts[3].trim();
 
-                // add lecture to timetable
-                weeklyTimetable.get(date.getDayOfWeek().getValue() - 1).add(new Lecture(module, date, time, room));
+                synchronized (weeklyTimetable) {
+                    // add lecture to timetable
+                    weeklyTimetable.get(date.getDayOfWeek().getValue() - 1).add(new Lecture(module, date, time, room));
+                }
             }
         }
         return "Timetable imported successfully from " + filePath;
     }
 
-    public synchronized void addLectureLite(LocalDate date, LocalTime time, String room, String module) {
-        weeklyTimetable.get(date.getDayOfWeek().getValue() - 1)
-                .add(new Lecture(module, date, time, room));
+    public void addLectureLite(LocalDate date, LocalTime time, String room, String module) {
+        synchronized (weeklyTimetable) {
+            weeklyTimetable.get(date.getDayOfWeek().getValue() - 1)
+                    .add(new Lecture(module, date, time, room));
+        }
     }
 
     public synchronized void removeLectureLite(LocalDate date, LocalTime time, String room, String module) {
         int dayIndex = date.getDayOfWeek().getValue() - 1;
-
-        Iterator<Lecture> iterator = weeklyTimetable.get(dayIndex).iterator();
-        while (iterator.hasNext()) {
-            Lecture lecture = iterator.next();
-            if (lecture.getModule().equalsIgnoreCase(module) &&
-                    lecture.getDate().equals(date) &&
-                    lecture.getTime().equals(time) &&
-                    lecture.getRoom().equalsIgnoreCase(room)) {
-                iterator.remove();
-                return;
+        synchronized (weeklyTimetable) {
+            Iterator<Lecture> iterator = weeklyTimetable.get(dayIndex).iterator();
+            while (iterator.hasNext()) {
+                Lecture lecture = iterator.next();
+                if (lecture.getModule().equalsIgnoreCase(module) &&
+                        lecture.getDate().equals(date) &&
+                        lecture.getTime().equals(time) &&
+                        lecture.getRoom().equalsIgnoreCase(room)) {
+                    iterator.remove();
+                    return;
+                }
             }
         }
     }
