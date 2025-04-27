@@ -57,5 +57,4 @@ public class RequestProcessor {
         earlyLecturesTask.setOnFailed(event -> System.out.println("Early lectures rescheduling failed: " + earlyLecturesTask.getException()));
         new Thread(earlyLecturesTask).start();
     }
-
 }
