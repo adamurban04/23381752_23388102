@@ -1,5 +1,6 @@
 package org.model;
 
+import org.controller.ServerGUI;
 import org.exceptions.IncorrectActionException;
 
 import java.io.BufferedReader;
@@ -73,10 +74,11 @@ public class Timetable {
                 Lecture lecture = iterator.next();
                 if (lecture.getModule().equalsIgnoreCase(module) && lecture.getDate().equals(date) && lecture.getTime().equals(time)) {
                     iterator.remove();
+                    ServerGUI.log("Lecture for "+ module +" removed");
                     return "Lecture removed.";
                 }
             }
-            return "ERROR: Lecture not found.";
+        return "ERROR: Lecture not found.";
         } catch (Exception e) {
             throw new IncorrectActionException("Invalid date format.");
         }
@@ -147,6 +149,13 @@ public class Timetable {
         return "Timetable exported successfully to " + filePath;
     }
 
+    public String clearTimetable() {
+        for (ArrayList<Lecture> dayLectures : weeklyTimetable) {
+            dayLectures.clear();
+        }
+        return "Timetable cleared!";
+    }
+
     public synchronized String importFromCSV(String filePath) throws IOException, IncorrectActionException {
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -200,6 +209,7 @@ public class Timetable {
 
     public void rescheduleLecturesToEarlierTimes() {
         ForkJoinPool.commonPool().invoke(new EarlyLecturesForkJoin(this, 0, 5));
+        ServerGUI.log("Lectures moved to earlier times!");
     }
 
     public synchronized List<Lecture> getLecturesForDay(int day) {
@@ -253,12 +263,12 @@ public class Timetable {
                                 lecture.getRoom(),
                                 lecture.getModule()
                         );
-
                         break; // Once moved, break to next lecture
                     }
                 }
             }
         }
+
     }
 
     public static class EarlyLecturesForkJoin extends RecursiveAction {
@@ -273,6 +283,7 @@ public class Timetable {
             this.endDay = endDay;
         }
 
+
         @Override
         protected void compute() {
             if (endDay - startDay <= SEQUENTIAL_THRESHOLD) {
@@ -283,10 +294,6 @@ public class Timetable {
                 EarlyLecturesForkJoin right = new EarlyLecturesForkJoin(timetable, mid, endDay);
                 invokeAll(left, right);
             }
-        }
-
-        public void startRescheduling(Timetable timetable) {
-            ForkJoinPool.commonPool().invoke(new EarlyLecturesForkJoin(timetable, 0, 5)); // 0=Monday, 4=Friday
         }
     }
 }
