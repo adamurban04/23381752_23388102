@@ -161,6 +161,7 @@ public class Timetable {
                 dayLectures.clear();
             }
         }
+        ServerGUI.log("Timetable cleared!");
         return "Timetable cleared!";
 
     }

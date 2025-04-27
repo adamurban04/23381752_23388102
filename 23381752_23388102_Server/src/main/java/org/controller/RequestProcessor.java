@@ -23,7 +23,6 @@ public class RequestProcessor {
                     return "TERMINATE";
                 case "Add":
                     return timetable.addLecture(details);
-
                 case "Remove":
                     return timetable.removeLecture(details);
                 case "Display":
