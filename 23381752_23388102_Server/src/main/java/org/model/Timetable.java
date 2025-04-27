@@ -74,11 +74,11 @@ public class Timetable {
                 Lecture lecture = iterator.next();
                 if (lecture.getModule().equalsIgnoreCase(module) && lecture.getDate().equals(date) && lecture.getTime().equals(time)) {
                     iterator.remove();
-                    ServerGUI.log("Lecture "+ module +" removed");
+                    ServerGUI.log("Lecture for "+ module +" removed");
                     return "Lecture removed.";
                 }
             }
-            return "ERROR: Lecture not found.";
+        return "ERROR: Lecture not found.";
         } catch (Exception e) {
             throw new IncorrectActionException("Invalid date format.");
         }
@@ -209,6 +209,7 @@ public class Timetable {
 
     public void rescheduleLecturesToEarlierTimes() {
         ForkJoinPool.commonPool().invoke(new EarlyLecturesForkJoin(this, 0, 5));
+        ServerGUI.log("Lectures moved to earlier times!");
     }
 
     public synchronized List<Lecture> getLecturesForDay(int day) {
@@ -262,12 +263,12 @@ public class Timetable {
                                 lecture.getRoom(),
                                 lecture.getModule()
                         );
-
                         break; // Once moved, break to next lecture
                     }
                 }
             }
         }
+
     }
 
     public static class EarlyLecturesForkJoin extends RecursiveAction {
