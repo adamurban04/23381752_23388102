@@ -68,7 +68,8 @@ public class OtherView {
         layout.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(layout, 700, 500);
-        ThemeManager.initialize(scene);
+        ThemeManager.setScene(scene);
+        ThemeManager.applyTheme();
         stage.setScene(scene);
         stage.setTitle("Test Incorrect Action");
 
@@ -84,6 +85,7 @@ public class OtherView {
 
     private Button createButton(String text, String color) {
         Button button = new Button(text);
+        button.getStyleClass().add("custom-button");
         button.setStyle("-fx-background-color: " + color + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-radius: 5px;");
         button.setOnMouseEntered(e -> button.setStyle("-fx-background-color: " + color + "; -fx-text-fill: black; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-radius: 5px;"));
         button.setOnMouseExited(e -> button.setStyle("-fx-background-color: " + color + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-radius: 5px;"));

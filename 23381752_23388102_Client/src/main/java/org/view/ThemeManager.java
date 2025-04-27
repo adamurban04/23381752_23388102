@@ -4,15 +4,10 @@ import javafx.scene.Scene;
 
 public class ThemeManager {
     private static boolean darkMode = false;
-    private static String lightTheme;
-    private static String darkTheme;
     private static Scene currentScene;
 
-    public static void initialize(Scene scene) {
-        lightTheme = ThemeManager.class.getResource("/light.css").toExternalForm();
-        darkTheme = ThemeManager.class.getResource("/dark.css").toExternalForm();
+    public static void setScene(Scene scene) {
         currentScene = scene;
-        applyTheme();
     }
 
     public static void toggleTheme() {
@@ -21,17 +16,18 @@ public class ThemeManager {
     }
 
     public static void applyTheme() {
-        if (currentScene == null) return;
-        currentScene.getStylesheets().clear();
-        if (darkMode) {
-            currentScene.getStylesheets().add(darkTheme);
-        } else {
-            currentScene.getStylesheets().add(lightTheme);
+        if (currentScene == null) {
+            System.err.println("No scene set for ThemeManager");
+            return;
         }
-    }
 
-    public static void setScene(Scene scene) {
-        currentScene = scene;
-        applyTheme();
+        try {
+            currentScene.getStylesheets().clear();
+            String cssFile = darkMode ? "/styles/dark.css" : "/styles/light.css";
+            String cssUrl = ThemeManager.class.getResource(cssFile).toExternalForm();
+            currentScene.getStylesheets().add(cssUrl);
+        } catch (NullPointerException e) {
+            System.err.println("Failed to load CSS file: " + e.getMessage());
+        }
     }
 }

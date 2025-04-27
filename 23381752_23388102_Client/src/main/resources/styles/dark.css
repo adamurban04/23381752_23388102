@@ -1,0 +1,48 @@
+.root {
+    -fx-font-family: "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+    -fx-background-color: #2E3440;
+}
+
+/* Title */
+.label.title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #D8DEE9;
+}
+
+/* Buttons */
+.custom-button {
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 20px;
+    -fx-pref-width: 200px;
+    -fx-font-size: 14px;
+    -fx-background-color: #5E81AC;
+    -fx-text-fill: white;
+}
+
+.theme-button{
+    -fx-background-color: #4a5e64;
+}
+
+.button:hover {
+    -fx-text-fill: black;
+}
+
+/* TextFields */
+.text-field {
+    -fx-border-color: #4C566A;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-padding: 7px;
+    -fx-background-color: #3B4252;
+    -fx-text-fill: white;
+}
+
+/* Labels */
+.label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #D8DEE9;
+}
+

@@ -43,19 +43,27 @@ public class ClientApp extends Application {
         Button displayButton = createButton("Display Timetable", "#537b2c");
         Button otherButton = createButton("Other", "#552c7b");
         Button themeButton = new Button("Toggle Light/Dark Mode");
+        themeButton.getStyleClass().add("custom-button");
+        themeButton.getStyleClass().add("theme-button");
 
         addButton.setOnAction(e -> new AddLectureView(primaryStage, this::showMainScreen));
         removeButton.setOnAction(e -> new RemoveLectureView(primaryStage, this::showMainScreen));
         displayButton.setOnAction(e -> new DisplayTimetableView(primaryStage, this::showMainScreen));
         otherButton.setOnAction(e -> new OtherView(primaryStage, this::showMainScreen));
-        themeButton.setOnAction(e -> ThemeManager.toggleTheme());
+        themeButton.setOnAction(e -> {
+            ThemeManager.toggleTheme();
+            ThemeManager.applyTheme();
+        });
+
 
         VBox buttonLayout = new VBox(15, titleLabel, addButton, removeButton, displayButton, otherButton, themeButton);
         buttonLayout.setPadding(new Insets(30));
         buttonLayout.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(buttonLayout, WIDTH, HEIGHT);
-        ThemeManager.initialize(scene);
+        buttonLayout.getStyleClass().add("main-root");
+        ThemeManager.setScene(scene);
+        ThemeManager.applyTheme();
         primaryStage.setScene(scene);
         primaryStage.setTitle("Lecture Timetable");
         primaryStage.show();
@@ -68,6 +76,7 @@ public class ClientApp extends Application {
 
     private Button createButton(String text, String color) {
         Button button = new Button(text);
+        button.getStyleClass().add("custom-button");
         button.setStyle("-fx-background-color: " + color + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-radius: 5px;");
         button.setOnMouseEntered(e -> button.setStyle("-fx-background-color: " + color + "; -fx-text-fill: black; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-radius: 5px;"));
         button.setOnMouseExited(e -> button.setStyle("-fx-background-color: " + color + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-radius: 5px;"));

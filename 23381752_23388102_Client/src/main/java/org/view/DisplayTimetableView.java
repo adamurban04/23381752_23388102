@@ -42,7 +42,7 @@ public class DisplayTimetableView {
         Button backButton = createButton("Back", "#e27e3d");
         Button exportButton = createButton("Export CSV", "#2C7A7B");
         Button importButton = createButton("Import CSV", "#2C7A7B");
-        Button sendEarlyLec = createButton("Send Early Lectures Request", "#FFA500");
+        Button earlyButtton = createButton("Early Lectures Request", "#FFA500");
 
 
         refreshButton.setOnAction(e -> updateTimetable());
@@ -65,7 +65,7 @@ public class DisplayTimetableView {
             }
         });
 
-        sendEarlyLec.setOnAction(e -> {
+        earlyButtton.setOnAction(e -> {
         earlyLecturesRequest();
         });
 
@@ -92,7 +92,7 @@ public class DisplayTimetableView {
         infoLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #808080;");
 
         // group Refresh and Back in an HBox
-        HBox refreshBackBox = new HBox(10, backButton, refreshButton, sendEarlyLec);
+        HBox refreshBackBox = new HBox(10, backButton, refreshButton, earlyButtton);
         refreshBackBox.setAlignment(Pos.CENTER);
 
 
@@ -107,7 +107,8 @@ public class DisplayTimetableView {
         layout.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(layout, 700, 500);
-        ThemeManager.initialize(scene);
+        ThemeManager.setScene(scene);
+        ThemeManager.applyTheme();
         stage.setScene(scene);
         stage.setTitle("Display Timetable");
 
@@ -262,6 +263,7 @@ public class DisplayTimetableView {
 
     private Button createButton(String text, String color) {
         Button button = new Button(text);
+        button.getStyleClass().add("custom-button");
         button.setStyle("-fx-background-color: " + color + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-radius: 5px;");
         button.setOnMouseEntered(e -> button.setStyle("-fx-background-color: " + color + "; -fx-text-fill: black; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-radius: 5px;"));
         button.setOnMouseExited(e -> button.setStyle("-fx-background-color: " + color + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px 20px; -fx-border-radius: 5px;"));
