@@ -75,11 +75,10 @@ public class AddLectureView {
         layout.setPadding(new Insets(20));
 
         layout.getStyleClass().add("main-root");
-        Scene scene = new Scene(layout, 700, 500);
+        Scene scene = new Scene(layout);
         ThemeManager.setScene(scene);
         ThemeManager.applyTheme();
         stage.setScene(scene);
-        stage.setTitle("Add Lecture");
     }
 
     private String sendAddLectureRequest() {

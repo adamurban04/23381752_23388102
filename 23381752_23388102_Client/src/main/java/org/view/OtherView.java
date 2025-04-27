@@ -67,11 +67,10 @@ public class OtherView {
         layout.setPadding(new Insets(20));
         layout.setAlignment(Pos.CENTER);
 
-        Scene scene = new Scene(layout, 700, 500);
+        Scene scene = new Scene(layout);
         ThemeManager.setScene(scene);
         ThemeManager.applyTheme();
         stage.setScene(scene);
-        stage.setTitle("Test Incorrect Action");
 
     }
 

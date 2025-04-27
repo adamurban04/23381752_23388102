@@ -77,11 +77,10 @@ public class RemoveLectureView {
         layout.setAlignment(Pos.CENTER);
         layout.setPadding(new Insets(20));
 
-        Scene scene = new Scene(layout, 700, 500);
+        Scene scene = new Scene(layout);
         ThemeManager.setScene(scene);
         ThemeManager.applyTheme();
         stage.setScene(scene);
-        stage.setTitle("Remove Lecture");
     }
 
     private String sendRemoveLectureRequest() {

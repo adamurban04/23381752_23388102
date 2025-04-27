@@ -13,8 +13,8 @@ import org.view.*;
 
 public class ClientApp extends Application {
 
-    private static final int WIDTH = 700;
-    private static final int HEIGHT = 500;
+    private static final int WIDTH = 750;
+    private static final int HEIGHT = 550;
     private Stage primaryStage;
 
     public static void main(String[] args) {

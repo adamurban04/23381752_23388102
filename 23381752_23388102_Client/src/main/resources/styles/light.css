@@ -44,3 +44,6 @@
     -fx-font-size: 14px;
 }
 
+.module-label {
+    -fx-text-fill: #2C3E50; /* dark blue in light mode */
+}

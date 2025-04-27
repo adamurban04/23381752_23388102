@@ -36,8 +36,8 @@
     -fx-border-radius: 10px;
     -fx-background-radius: 10px;
     -fx-padding: 7px;
-    -fx-background-color: #3B4252;
-    -fx-text-fill: white;
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #656565;
 }
 
 /* Labels */
@@ -46,3 +46,6 @@
     -fx-text-fill: #D8DEE9;
 }
 
+.module-label {
+    -fx-text-fill: white;
+}

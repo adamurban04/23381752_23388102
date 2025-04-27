@@ -111,10 +111,10 @@ public class DisplayTimetableView {
         layout.setPadding(new Insets(20));
         layout.setAlignment(Pos.CENTER);
 
-        Scene scene = new Scene(layout, 700, 500);
-        ThemeManager.initialize(scene);
+        Scene scene = new Scene(layout);
+        ThemeManager.setScene(scene);
+        ThemeManager.applyTheme();
         stage.setScene(scene);
-        stage.setTitle("Display Timetable");
 
         updateTimetable(); // load timetable on start
     }
@@ -236,7 +236,7 @@ public class DisplayTimetableView {
                         int hour = Integer.parseInt(time.split(":")[0]); // get hour
 
                         Label moduleLabel = new Label(module);
-                        moduleLabel.setStyle("-fx-text-fill: #2C3E50;");
+                        moduleLabel.getStyleClass().add("module-label");
 
                         // hover effect with animations
                         if (room != null) {
