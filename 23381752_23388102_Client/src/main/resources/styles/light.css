@@ -3,14 +3,12 @@
     -fx-background-color: #F0F4F8;
 }
 
-/* Title */
 .label.title {
     -fx-font-size: 22px;
     -fx-font-weight: bold;
     -fx-text-fill: #2C3E50;
 }
 
-/* Buttons */
 .custom-button {
     -fx-background-radius: 10px;
     -fx-border-radius: 10px;
@@ -30,7 +28,6 @@
     -fx-text-fill: black;
 }
 
-/* TextFields */
 .text-field {
     -fx-border-color: #B0BEC5;
     -fx-border-radius: 10px;
@@ -39,7 +36,6 @@
     -fx-background-color: #FFFFFF;
 }
 
-/* Labels */
 .label {
     -fx-font-size: 14px;
 }
