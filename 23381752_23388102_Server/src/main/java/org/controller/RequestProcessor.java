@@ -33,7 +33,7 @@ public class RequestProcessor {
                 case "ImportCSV":
                     return timetable.importFromCSV(details);
                 case "EarlyLectures":
-                    offloadEarlyLectures(timetable);  // Call the refactored method
+                    offloadEarlyLectures(timetable);
                     return "TimetableUpdated";
                 case "Clear":
                     return timetable.clearTimetable();

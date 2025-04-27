@@ -137,24 +137,23 @@ public class DisplayTimetableView {
         try {
             String response = ClientConnection.getInstance().sendRequest("EarlyLectures$req");
             System.out.println("Server response: " + response);
-
             if ("TimetableUpdated".equals(response)) {
+                Thread.sleep(100);//Timetable wont update unless we sleep for a while
                 updateTimetable();
             } else {
                 System.out.println("Unexpected server response: " + response);
             }
+
         } catch (Exception e) {
             System.out.println("Exception: " + e.getMessage());
         }
-        updateTimetable();
-
     }
 
     public void updateTimetable() {
         try {
             String response = ClientConnection.getInstance().sendRequest("Display$details");
 
-            timetableGrid.getChildren().clear(); // clear previous timetable data
+            timetableGrid.getChildren().clear();
             displayTimetable(response);
         } catch (Exception e) {
             timetableGrid.getChildren().clear();
